@@ -4,7 +4,7 @@ from plots import dashboard_plot as dplt
 from plots import position_plot as pplt
 from plots import dividend_plot as div_plt
 
-@st.cache_data
+@st.cache_data(ttl = '15minutes')
 def load_data(t212_api_key):
     """
     Function takes in api key and returns portfolio, balance and 
