@@ -1,0 +1,9 @@
+CurrencyConverter==0.17.17
+matplotlib==3.8.0
+numpy==1.26.4
+pandas==2.2.1
+python_dateutil==2.8.2
+python_dateutil==2.9.0.post0
+Requests==2.31.0
+seaborn==0.13.2
+streamlit==1.32.0
