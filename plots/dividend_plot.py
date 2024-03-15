@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-import sys
+
 
 def bar_plotter(df, x_axis, y_axis, x_label, y_label):
     """
@@ -24,22 +24,33 @@ def bar_plotter(df, x_axis, y_axis, x_label, y_label):
     
     sns.set_palette('Set2', len(df))
     
+    ax.set_facecolor('#0E1117')
+    fig.set_facecolor('#0E1117')
+    ax.spines[['right', 'top']].set_visible(False)
+    ax.spines['bottom'].set_color('white')
+    ax.spines['left'].set_color('white')
+    
     ax = sns.barplot(data = df, x = x_axis, y = y_axis)
     
     ax.set(xlabel= x_label, ylabel= y_label)
     
-    ax.tick_params(axis='x', rotation=45)
+    ax.tick_params(axis='x', rotation=45, colors = 'w')
     
-    ax.grid(True, axis = 'y', alpha = 0.2)
+    ax.tick_params(axis='y', colors = 'w')
+    
+    # ax.grid(True, axis = 'y', alpha = 0.2, color = 'w')
+
+    ax.xaxis.label.set_color('white')
+    ax.yaxis.label.set_color('white')
     
     # for loop used to write specific value of bar 
     for bar in ax.patches:
         
-        ax.annotate(format(bar.get_height(), '.2f'),
+        ax.annotate(f"£{bar.get_height():.2f}",
                     (bar.get_x() + bar.get_width() / 2,
                      bar.get_height()), ha='center', va='center',
                     size=8, xytext=(0, 8),
-                    textcoords='offset points')     
+                    textcoords='offset points', color = 'white')     
     
     return fig
 
@@ -62,9 +73,20 @@ def line_plotter(df, x_axis, y_axis, x_label, y_label):
     
     ax = sns.lineplot(data = df, x = x_axis, y = y_axis)
     
+    ax.set_facecolor('#0E1117')
+    fig.set_facecolor('#0E1117')
+    ax.spines[['right', 'top']].set_visible(False)
+    ax.spines['bottom'].set_color('white')
+    ax.spines['left'].set_color('white')
+    
     ax.set(xlabel= x_label, ylabel= y_label)
     
-    ax.tick_params(axis='x', rotation=45)
+    ax.tick_params(axis='x', rotation=45, colors = 'w')
+    
+    ax.tick_params(axis='y', colors = 'w')
+    
+    ax.xaxis.label.set_color('white')
+    ax.yaxis.label.set_color('white')
     
     ax.grid(True, axis = 'y', alpha = 0.2)
         

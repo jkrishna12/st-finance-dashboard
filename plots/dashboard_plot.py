@@ -18,6 +18,8 @@ def pie_plot(df, label):
     
     fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
     
+    fig.set_facecolor('#0E1117')
+    
     explode = np.full(len(df), 0.1)
     
     wedges, texts = ax.pie(df['currentPos'], 
@@ -46,9 +48,10 @@ def pie_plot(df, label):
             horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
             connectionstyle = f"angle,angleA=0,angleB={ang}"
             
-            kw["arrowprops"].update({"connectionstyle": connectionstyle})
-            ax.annotate(f"{df.loc[i, label]}, {df.loc[i, 'pct']}%", xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y),
-                        horizontalalignment=horizontalalignment, **kw)
+            kw["arrowprops"].update({"connectionstyle": connectionstyle, 'color':'white'})
+            ax.annotate(f"{df.loc[i, label]}, {df.loc[i, 'pct']}%", xy=(x, y), xytext=(1.4*np.sign(x), 1.4*y),
+                        horizontalalignment=horizontalalignment,
+                        color = 'white', **kw)
     
     return fig
 
@@ -120,13 +123,26 @@ def bar_plot(df, fig_option, x_axis, y_axis, x_label, y_label):
     
     fig, ax = plt.subplots(figsize=(8, 6))
     
+    ax.set_facecolor('#0E1117')
+    fig.set_facecolor('#0E1117')
+    ax.spines[['right', 'top']].set_visible(False)
+    ax.spines['bottom'].set_color('white')
+    ax.spines['left'].set_color('white')
+    
     sns.set_palette('Set2', len(df))
 
     ax = sns.barplot(data = df, x = x_axis, y = y_axis)
     
     ax.set(xlabel = x_label, ylabel = y_label)
     
-    ax.tick_params(axis='x', rotation=45)
+    ax.tick_params(axis='x', rotation=45, colors = 'w')
+    
+    ax.tick_params(axis='y', colors = 'w')
+    
+    # ax.grid(True, axis = 'y', alpha = 0.2, color = 'w')
+    
+    ax.xaxis.label.set_color('white')
+    ax.yaxis.label.set_color('white')
     
     for bar in ax.patches:
 
@@ -146,8 +162,9 @@ def bar_plot(df, fig_option, x_axis, y_axis, x_label, y_label):
                        (bar.get_x() + bar.get_width() / 2, 
                         height), ha='center', va='center',
                        size=8, xytext=(0, 8),
-                       textcoords='offset points')
-    ax.set_title(f"Portfolio {fig_option}")    
+                       textcoords='offset points', color = 'white')
+        
+    ax.set_title(f"Portfolio {fig_option}", color = 'white')    
     
     return fig 
 

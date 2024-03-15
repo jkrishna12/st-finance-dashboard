@@ -22,6 +22,7 @@ def load_position_df(portfolio_df):
     
     # dictionary to rename columns
     rename_dict = {
+                    'name':'Name',
                     'shortName':'Ticker',
                     'quantity':'Shares',
                     'averagePrice_GBP':'Average Price (GBP)',
