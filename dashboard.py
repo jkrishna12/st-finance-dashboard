@@ -4,7 +4,8 @@ from plots import dashboard_plot as dplt
 from plots import position_plot as pplt
 from plots import dividend_plot as div_plt
 
-@st.cache_data(ttl = '15minutes')
+# @st.cache_data(ttl = '15minutes')
+@st.cache_data()
 def load_data(t212_api_key):
     """
     Function takes in api key and returns portfolio, balance and 
@@ -109,6 +110,14 @@ if st.session_state['t212_input'] != '':
                      hide_index = True)
         
     with dividend_tab:
+        
+        st.subheader('Dividends Paid Out')
+        
+        total = dividends_df['amount'].sum()
+        
+        st.write(f"**Total:** £{total:.2f}")
+        
+        st.divider()
         
         year_bar_fig, month_bar_fig = div_plt.dividend_bar_plot(dividends_df)
         
