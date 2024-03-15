@@ -22,7 +22,7 @@ def bar_plotter(df, x_axis, y_axis, x_label, y_label):
     
     fig, ax = plt.subplots(figsize = (8,6))
     
-    sns.set_palette('Set2', len(df))
+    # sns.set_palette('Set2', len(df))
     
     ax.set_facecolor('#0E1117')
     fig.set_facecolor('#0E1117')
@@ -30,7 +30,7 @@ def bar_plotter(df, x_axis, y_axis, x_label, y_label):
     ax.spines['bottom'].set_color('white')
     ax.spines['left'].set_color('white')
     
-    ax = sns.barplot(data = df, x = x_axis, y = y_axis)
+    ax = sns.barplot(data = df, x = x_axis, y = y_axis, palette = 'Set2')
     
     ax.set(xlabel= x_label, ylabel= y_label)
     

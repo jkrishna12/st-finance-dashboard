@@ -129,9 +129,9 @@ def bar_plot(df, fig_option, x_axis, y_axis, x_label, y_label):
     ax.spines['bottom'].set_color('white')
     ax.spines['left'].set_color('white')
     
-    sns.set_palette('Set2', len(df))
+    # sns.set_palette('Set2', len(df))
 
-    ax = sns.barplot(data = df, x = x_axis, y = y_axis)
+    ax = sns.barplot(data = df, x = x_axis, y = y_axis, palette = 'Set2')
     
     ax.set(xlabel = x_label, ylabel = y_label)
     
