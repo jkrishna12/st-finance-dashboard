@@ -20,9 +20,7 @@ def bar_plotter(df, x_axis, y_axis, x_label, y_label):
         fig: Matplotlib figure: figure of the bar chart
     """   
     
-    fig, ax = plt.subplots(figsize = (8,6))
-    
-    # sns.set_palette('Set2', len(df))
+    fig, ax = plt.subplots(figsize = (8,6))    
     
     ax.set_facecolor('#0E1117')
     fig.set_facecolor('#0E1117')
@@ -30,7 +28,7 @@ def bar_plotter(df, x_axis, y_axis, x_label, y_label):
     ax.spines['bottom'].set_color('white')
     ax.spines['left'].set_color('white')
     
-    ax = sns.barplot(data = df, x = x_axis, y = y_axis, palette = 'Set2')
+    sns.barplot(data = df, x = x_axis, y = y_axis, palette = 'Set2', ax = ax)
     
     ax.set(xlabel= x_label, ylabel= y_label)
     
@@ -71,7 +69,7 @@ def line_plotter(df, x_axis, y_axis, x_label, y_label):
 
     fig, ax = plt.subplots(figsize = (5,3))
     
-    ax = sns.lineplot(data = df, x = x_axis, y = y_axis)
+    sns.lineplot(data = df, x = x_axis, y = y_axis, ax = ax)
     
     ax.set_facecolor('#0E1117')
     fig.set_facecolor('#0E1117')
@@ -128,10 +126,10 @@ def dividend_bar_plot(dividends_df):
     t = date.today() - relativedelta(years = 1)
     
     # filter dataset to only include records data from last year
-    last_yr = dividends_df[dividends_df['paidOn'].dt.date >= t]
+    last_yr = dividends_df[dividends_df['paidOn'].dt.date >= t].copy()
     
     # define a new column that shows the year and month
-    last_yr.loc[:,'year_month'] = last_yr.loc[:,'paidOn'].dt.to_period('M')
+    last_yr.loc[:,'year_month'] = last_yr['paidOn'].dt.to_period('M')
     
     # group data based on the year and month and sum dividends 
     month = last_yr.groupby(['year_month'])['amount'].sum().reset_index() 
@@ -193,6 +191,25 @@ def specific_stock_df(df, option):
         stock_fig = None
         
         return stock_fig, stock_paid_out
+    
+def dividend_history(df, entries):    
+    
+    div_df = df.copy()
+    
+    div_df['Date'] = div_df['paidOn'].dt.date
+    
+    div_select = div_df[['shortName', 'amount', 'Date']]
+    
+    rename_dict = {
+        'shortName':'Ticker',
+        'amount':'Dividend (£)'
+    }
+    
+    div_hist = div_select.rename(columns = rename_dict)
+    
+    div_hist = div_hist.iloc[:entries,:]     
+    
+    return div_hist
     
     
         
