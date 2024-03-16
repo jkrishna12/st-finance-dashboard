@@ -130,7 +130,8 @@ def get_dividends_df(api_key):
     dividends_df = pd.json_normalize(dividends)
     
     # convert paidOn to datetime dtype and ticker column to string dtype
-    dividends_df['paidOn'] = pd.to_datetime(dividends_df['paidOn'], utc = True)
+    dividends_df['paidOn'] = pd.to_datetime(dividends_df['paidOn'], utc = True).dt.date
+    dividends_df['paidOn'] = pd.to_datetime(dividends_df['paidOn'], format = '%Y-%m-%d')
     dividends_df['ticker'] = dividends_df['ticker'].astype('string')
 
     # use regex to extract the short ticker name   

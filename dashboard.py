@@ -4,8 +4,8 @@ from plots import dashboard_plot as dplt
 from plots import position_plot as pplt
 from plots import dividend_plot as div_plt
 
-@st.cache_data(ttl = '15minutes')
-# @st.cache_data()
+# @st.cache_data(ttl = '15minutes')
+@st.cache_data()
 def load_data(t212_api_key):
     """
     Function takes in api key and returns portfolio, balance and 
@@ -29,7 +29,7 @@ st.set_page_config(
     layout='wide'
     )
 
-st.set_option('deprecation.showPyplotGlobalUse', False)
+# st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
 st.title('Finance Dashboard')
@@ -102,8 +102,8 @@ if st.session_state['t212_input'] != '':
     with pos_tab:
         portfolio_df_show = pplt.load_position_df(portfolio_df)
         
-        styled_df = portfolio_df_show.style.applymap(color_positive_or_negative,
-                                                     subset=['Value Change (GBP)', 'Percentage Change'])               
+        styled_df = portfolio_df_show.style.map(color_positive_or_negative,
+                                                     subset=['Value Change (GBP)', 'Percentage Change'])            
         
         st.dataframe(styled_df.format(precision = 2),                                  
                      use_container_width=True,
@@ -116,6 +116,13 @@ if st.session_state['t212_input'] != '':
         total = dividends_df['amount'].sum()
         
         st.write(f"**Total:** £{total:.2f}")
+        
+        entries = st.slider('Entries Displayed:', min_value=1, max_value = 10, 
+                  value = 5, step = 1)
+        
+        div_hist = div_plt.dividend_history(dividends_df, entries = entries)
+        
+        st.dataframe(div_hist, use_container_width=False, hide_index = True)
         
         st.divider()
         
