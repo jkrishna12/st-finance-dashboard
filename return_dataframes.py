@@ -166,9 +166,6 @@ def get_balance_df(api_key):
 
     return balance_df    
 
-if __name__ == '__main__':
-    api_key = '2477434ZcsnUWvzGorFccMRxvNSwYqLnjdwa'
-    d = get_clean_portfolio_df(api_key)
     
     
     
