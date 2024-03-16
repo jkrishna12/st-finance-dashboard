@@ -194,10 +194,6 @@ def get_balance(api_key):
     data = response.json()
     
     return data
-            
-if __name__ == '__main__':
-    api_key = '2477434ZcsnUWvzGorFccMRxvNSwYqLnjdwa'
-    a = get_balance(api_key)
     
     
     
