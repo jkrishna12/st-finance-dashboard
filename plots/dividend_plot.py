@@ -3,9 +3,10 @@ from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import plotly.graph_objects as go
 
-
-def bar_plotter(df, x_axis, y_axis, x_label, y_label):
+def bar_plotter_matplotlib(df, x_axis, y_axis, x_label, y_label):
+    
     """
     Function used to plot bar graph. 
     
@@ -52,7 +53,63 @@ def bar_plotter(df, x_axis, y_axis, x_label, y_label):
     
     return fig
 
-def line_plotter(df, x_axis, y_axis, x_label, y_label):
+def bar_plot_year_plotly(df, x_axis, y_axis, x_label, y_label):
+    """
+    Function returns a plotly bar chart of the dividends per year
+    Parameters:
+        df: Pandas Dataframe, dividends dataframe
+        x_axis: String, column label of data to be plotted on x axis
+        y_axis: String, column label of data to be plotted on y axis
+        x_label: String, label of the x axis
+        y_label: String, label of the y axis
+    Return:
+        fig: Plotly figure, bar chart
+    """    
+    fig = go.Figure(data = [go.Bar(
+            x = df[x_axis], y = df[y_axis],
+            text = df[y_axis],
+            textposition='outside',
+            texttemplate = '£%{text:.2f}',
+            hovertemplate = 'Year: %{x}, Div: £%{y:.2f} <extra></extra>')])
+    
+    fig.update_layout(width=500, height=500, 
+                      xaxis_tickangle = -45, title = "Yearly Dividend Payout",
+                      xaxis_title = x_label, yaxis_title = y_label)
+    
+    return fig
+
+def bar_plot_month_plotly(df, x_axis, y_axis, x_label, y_label):
+    """
+    Function returns a plotly bar chart of the dividends paid out per month for
+    the year to date
+    Parameters:
+        df: Pandas Dataframe, dividends dataframe
+        x_axis: String, column label of data to be plotted on x axis
+        y_axis: String, column label of data to be plotted on y axis
+        x_label: String, label of the x axis
+        y_label: String, label of the y axis
+    Return:
+        fig: Plotly figure, bar chart    
+    """    
+    fig = go.Figure(data = [go.Bar(
+            x = df[x_axis].dt.strftime('%Y-%m'), y = df[y_axis],
+            text = df[y_axis],
+            textposition='outside',
+            texttemplate = '£%{text:.2f}',
+            xhoverformat="%B %Y",
+            hovertemplate = 'Month: %{x}, Div: £%{y:.2f} <extra></extra>')])
+    
+    fig.update_layout(width=500, height=500, xaxis_tickangle = -45,
+                      title = "Year to Date Monthly Dividend Payout",
+                      xaxis_title = x_label, yaxis_title = y_label)
+
+    fig.update_xaxes(dtick = 'M1')
+    
+    return fig
+
+
+
+def line_plotter_matplotlib(df, x_axis, y_axis, x_label, y_label):
     """
     Function used to plot line graph 
     
@@ -90,6 +147,40 @@ def line_plotter(df, x_axis, y_axis, x_label, y_label):
         
     return fig
 
+def line_plotter_plotly(df, x_axis, y_axis, x_label, y_label, option):
+    """
+    Function returns a plotly line chart of the dividends paid out for a 
+    specific stock
+    Parameters:
+        df: Pandas Dataframe, dividends dataframe
+        x_axis: String, column label of data to be plotted on x axis
+        y_axis: String, column label of data to be plotted on y axis
+        x_label: String, label of the x axis
+        y_label: String, label of the y axis
+    Return:
+        fig: Plotly figure, line graph
+    """
+    fig = go.Figure(go.Scatter(
+                x = df[x_axis].dt.strftime('%Y-%m'), y = df[y_axis],
+                line=dict(color='royalblue'),
+                xhoverformat="%B %Y",
+                hovertemplate = 'Month: %{x}, Div: £%{y:.2f} <extra></extra>',
+                mode = 'lines+markers'
+                ))
+
+    fig.update_layout(
+                      width = 800, height = 600,
+                      title = f"Historic Payout for {option}",
+                      xaxis_title = 'Month', yaxis_title = 'Dividend Paid Out (£)'
+                     )
+
+    fig.update_xaxes(
+        dtick="M3",
+        tickformat="%b\n%Y"
+    )    
+    
+    return fig
+
 def dividend_bar_plot(dividends_df):
     """
     Function takes the dividend data frame and returns a 2 figure objects.
@@ -119,8 +210,11 @@ def dividend_bar_plot(dividends_df):
     year_y_label = 'Dividend Paid Out (£)'
     
     # plot dividends sum per year
-    fig_year = bar_plotter(year_plot, year_x_axis, year_y_axis,
-                           year_x_label, year_y_label)
+    # fig_year = bar_plotter_matplotlib(year_plot, year_x_axis, year_y_axis,
+    #                        year_x_label, year_y_label)
+    
+    fig_year = bar_plot_year_plotly(year_plot, year_x_axis, year_y_axis,
+                                    year_x_label, year_y_label)
     
     # calculate date exactly 1 year ago    
     t = date.today() - relativedelta(years = 1)
@@ -141,8 +235,11 @@ def dividend_bar_plot(dividends_df):
     month_y_label = 'Dividend Paid Out (£)'
     
     # plot dividends sum per month for the last year     
-    fig_month = bar_plotter(month, month_x_axis, month_y_axis,
-                            month_x_label, month_y_label)
+    # fig_month = bar_plotter_matplotlib(month, month_x_axis, month_y_axis,
+                            # month_x_label, month_y_label)
+                            
+    fig_month = bar_plot_month_plotly(month, month_x_axis, month_y_axis,
+                                      month_x_label, month_y_label)
     
     return fig_year, fig_month
 
@@ -181,8 +278,11 @@ def specific_stock_df(df, option):
     # line graph produced
     if len(stock_sorted_df) > 1:
     
-        stock_fig = line_plotter(stock_sorted_df, stock_x_axis, stock_y_axis,
-                             stock_x_label, stock_y_label)
+        # stock_fig = line_plotter_matplotlib(stock_sorted_df, stock_x_axis, stock_y_axis,
+        #                      stock_x_label, stock_y_label)
+        
+        stock_fig = line_plotter_plotly(stock_sorted_df, stock_x_axis, stock_y_axis,
+                              stock_x_label, stock_y_label, option)
                 
         return stock_fig, stock_paid_out
     
@@ -193,7 +293,16 @@ def specific_stock_df(df, option):
         return stock_fig, stock_paid_out
     
 def dividend_history(df, entries):    
-    
+    """
+    Function shows the most recent dividends paid out. entries paramter 
+    determines size of dataframe
+    Paramters:
+        df: Pandas Dataframe, dividend dataframe
+        entries: Integer, determines size of dataframe
+    Returns:
+        div_hist: Pandas Dataframe, dividend dataframe showing most recent 
+                dividend pay outs
+    """
     div_df = df.copy()
     
     div_df['Date'] = div_df['paidOn'].dt.date

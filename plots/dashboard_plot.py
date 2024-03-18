@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.graph_objects as go
 
 
 
-def pie_plot(df, label):
+def pie_plot_matplotlib(df, label):
     """
     Takes in a dataframe and returns a pie chart
     
@@ -55,6 +56,37 @@ def pie_plot(df, label):
     
     return fig
 
+def pie_plot_plotly(df, label):
+    """
+    Function returns a plotly pie chart figure
+    
+    Parameters:
+        df: Pandas Dataframe, dataframe of the account
+        label: String, column axis, determines whether detailed or general breakdown is returned
+    Returns:
+        fig: plotly Figure, general/detailed pie chart figure
+    """
+    
+    fig = go.Figure(data = go.Pie(values = df['pct'],
+                               labels = df[label],
+                               hole = 0.5,
+                              pull = np.full(len(df), 0.1),
+                              showlegend = False))
+    
+    fig.update_traces(textinfo = 'label+percent',
+                  hoverinfo = 'label+percent')
+    
+    if label == 'shortName':
+        title = 'Detailed'
+    else:
+        title = 'General'
+    
+    fig.update_layout(width=500, height=500, title = f"Portfolio {title} Breakdown")
+    
+    # fig.title(f"{label} Breakdown")
+    
+    return fig
+
 
 def pie_balance_breakdown(portfolio_df, balance_df, option):
     """
@@ -90,7 +122,8 @@ def pie_balance_breakdown(portfolio_df, balance_df, option):
         account_df = account_df.sort_values('currentPos', ascending = False)
         account_df.reset_index(inplace = True, drop = True)
         
-        holding_fig = pie_plot(account_df, 'shortName')
+        # holding_fig = pie_plot_matplotlib(account_df, 'shortName')
+        holding_fig = pie_plot_plotly(account_df, 'shortName')
         
         return holding_fig
         
@@ -101,12 +134,12 @@ def pie_balance_breakdown(portfolio_df, balance_df, option):
         # calculate the percentage of each instrument type and round to 2dp
         account_df_groupby['pct'] = np.round((account_df_groupby['currentPos'] / account_val) * 100,2)
         
-        instrument_fig = pie_plot(account_df_groupby, 'type')
+        instrument_fig = pie_plot_plotly(account_df_groupby, 'type')
         
         return instrument_fig
         
     
-def bar_plot(df, fig_option, x_axis, y_axis, x_label, y_label):
+def bar_plot_matplotlib(df, fig_option, x_axis, y_axis, x_label, y_label):
     """
     Function takes in a dataframe and axis and label paramters and returns a
     bar figure
@@ -168,6 +201,35 @@ def bar_plot(df, fig_option, x_axis, y_axis, x_label, y_label):
     
     return fig 
 
+def bar_plot_plotly(df, fig_option, x_axis, y_axis, x_label, y_label):
+    """
+    Function takes the portfolio dataframe and returns a bar graph of either the 
+    value change or percentage change
+    Parameters:
+        df: Pandas Dataframe, portfolio dataframe
+        fig_option: String, determines whether value change or percentage change graph is shown
+        x_axis: String, column label to plot on x axis
+        y_axis: String, column label to plot on y axis
+        x_label: String, x axis label
+        y_label: String, y axis label
+    Return:
+        fig: Plotly figure, bar chart
+    """
+    
+    fig = go.Figure(data = [go.Bar(
+            x = df[x_axis], y = df[y_axis],
+            text = df[y_axis],
+            textposition='outside',
+            hovertemplate = '%{x}: %{y:.2f} <extra></extra>')])
+    
+    fig.update_layout(width=500, height=500,
+                      xaxis_tickangle = -45, title = f"Portfolio {fig_option}",
+                      xaxis_title = x_label, yaxis_title = y_label)
+    
+    
+    return fig
+
+
 def portfolio_position_breakdown(portfolio_df, fig_option):
     """
     Function takes in the portfolio dataframe and returns a bar chart of the 
@@ -188,8 +250,10 @@ def portfolio_position_breakdown(portfolio_df, fig_option):
         y_axis = 'pct_change'
         y_label = 'Percentage Change'
         
-        fig_year = bar_plot(portfolio_df, fig_option, x_axis, y_axis,
-                            x_label, y_label)
+        # fig_year = bar_plot_matplotlib(portfolio_df, fig_option, x_axis, y_axis,
+        #                     x_label, y_label)
+        
+        fig_year = bar_plot_plotly(portfolio_df, fig_option, x_axis, y_axis, x_label, y_label)
         
         return fig_year
         
@@ -198,7 +262,7 @@ def portfolio_position_breakdown(portfolio_df, fig_option):
         y_axis = 'abs_value_change'
         y_label = 'Absolute Value Change (£)'
            
-        fig_year = bar_plot(portfolio_df, fig_option, x_axis, y_axis,
+        fig_year = bar_plot_plotly(portfolio_df, fig_option, x_axis, y_axis,
                             x_label, y_label)
         
         return fig_year
