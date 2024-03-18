@@ -4,8 +4,8 @@ from plots import dashboard_plot as dplt
 from plots import position_plot as pplt
 from plots import dividend_plot as div_plt
 
-@st.cache_data(ttl = '15minutes')
-# @st.cache_data()
+# @st.cache_data(ttl = '15minutes')
+@st.cache_data()
 def load_data(t212_api_key):
     """
     Function takes in api key and returns portfolio, balance and 
@@ -85,7 +85,8 @@ if st.session_state['t212_input'] != '':
             
             pie_balance = dplt.pie_balance_breakdown(portfolio_df, balance_df, option)            
 
-            st.pyplot(pie_balance)
+            st.plotly_chart(pie_balance, use_container_width=True,
+                            theme = 'streamlit')
             
         with dashboard_col2_2:
             
@@ -96,7 +97,10 @@ if st.session_state['t212_input'] != '':
             
             figure = dplt.portfolio_position_breakdown(portfolio_df, option)
             
-            st.pyplot(figure)
+            # st.pyplot(figure)
+            
+            st.plotly_chart(figure, use_container_width=True,
+                            theme = 'streamlit')
     
     
     with pos_tab:
@@ -132,11 +136,13 @@ if st.session_state['t212_input'] != '':
         
         with dividend_col1_1:
             st.subheader('Yearly Dividend Pay Out')
-            st.pyplot(year_bar_fig)
+            st.plotly_chart(year_bar_fig, use_container_width=True,
+                            theme = 'streamlit')
             
         with dividend_col1_2:
             st.subheader('Year to Date Monthly Dividend Payout')
-            st.write(month_bar_fig)
+            st.plotly_chart(month_bar_fig, use_container_width=True,
+                            theme = 'streamlit')
             
         st.divider()
         
@@ -144,13 +150,19 @@ if st.session_state['t212_input'] != '':
         
         stock_option = st.selectbox('Pick a stock', list(dividends_df['shortName'].unique()))
         
-        stock_fig, stock_paid_out, = div_plt.specific_stock_df(dividends_df, stock_option)
+        stock_fig, stock_paid_out = div_plt.specific_stock_df(dividends_df, stock_option)
            
         if stock_fig != None:
         
             st.write(f"**Total Amount Paid Out:** £{stock_paid_out}")        
     
-            st.pyplot(stock_fig, use_container_width = False)            
+            # st.pyplot(stock_fig, use_container_width = False)      
+            
+            st.plotly_chart(
+                stock_fig,
+                use_container_width=True,                
+                theme = 'streamlit'
+                )
             
         else:
                       
