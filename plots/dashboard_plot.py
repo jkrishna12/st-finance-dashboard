@@ -222,6 +222,11 @@ def bar_plot_plotly(df, fig_option, x_axis, y_axis, x_label, y_label):
             textposition='outside',
             hovertemplate = '%{x}: %{y:.2f} <extra></extra>')])
     
+    if fig_option == 'Absolute Value Change':
+        fig.update_traces(texttemplate='£%{text}')
+    else:
+        fig.update_traces(texttemplate='%{text}%')
+    
     fig.update_layout(width=500, height=500,
                       xaxis_tickangle = -45, title = f"Portfolio {fig_option}",
                       xaxis_title = x_label, yaxis_title = y_label)
