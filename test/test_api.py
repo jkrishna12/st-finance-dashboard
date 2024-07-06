@@ -1,4 +1,4 @@
-# import os
+import os
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
@@ -12,5 +12,5 @@ try:
 except:
 
     T212_API_KEY = 'hello'
-
+    print("except block")
     print(T212_API_KEY)
