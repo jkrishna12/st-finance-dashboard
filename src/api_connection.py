@@ -16,8 +16,8 @@ def get_portfolio(api_key):
     # try block will request the data 
     try:
         response = requests.get(url, headers=headers)   
-        data = response.json() 
-        return data   
+        # data = response.json() 
+        return response   
     except requests.exceptions.RequestException as e:
         print(f'Unable to pull portfolio data due to {response}')
         print(e)

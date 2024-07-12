@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv, find_dotenv
+from src.api_connection import *
 
 load_dotenv(find_dotenv())
 
@@ -14,3 +15,17 @@ except:
     T212_API_KEY = 'hello'
     print("except block")
     print(T212_API_KEY)
+
+def test_get_portfolio():
+
+    portfolio_reponse = get_portfolio(T212_API_KEY)
+
+    assert portfolio_reponse.status_code == 200
+    
+    assert portfolio_reponse.headers["Content-Type"] == 'application/json'
+
+    portfolio_data = portfolio_reponse.json()
+
+    assert len(portfolio_data[0]) == 11
+
+    return

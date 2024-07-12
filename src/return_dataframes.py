@@ -11,7 +11,9 @@ def get_portfolio_df(api_key):
     portfolio data
     """  
     # extract json portfolio data using api key
-    data = api.get_portfolio(api_key)
+    response = api.get_portfolio(api_key)
+
+    data = response.json()
     
     # create a dataframe using the json data
     portfolio_df = pd.json_normalize(data)[['ticker','quantity','averagePrice', 'currentPrice', 'ppl', 'fxPpl', 'initialFillDate']]
