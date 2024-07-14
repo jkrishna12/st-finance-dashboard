@@ -78,4 +78,4 @@ def get_secret(key):
 
         return deployment_key
 
-T212_API_KEY = get_secret('T212_API_KEY')
+T212_API_KEY = get_secret('TEST')
