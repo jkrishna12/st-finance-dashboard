@@ -5,7 +5,7 @@ on:
         branches: ["feature-env-folder"]
 
 env:
-    TEST: ${{ secrets.TEST }}
+    T212_API_KEY: ${{ secrets.T212_API_KEY }}
     ENVIRONMENT: deployment
 
 jobs:
@@ -31,4 +31,4 @@ jobs:
 
         - name: Pytest Tests
           run: |
-            python tests/test_api.py
+            pytest -v
