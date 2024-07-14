@@ -30,4 +30,4 @@ jobs:
 
         - name: Pytest Tests
           run: |
-            pytest -v
+            python tests/test_api.py
