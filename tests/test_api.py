@@ -52,16 +52,14 @@ def test_github_secrets():
 
 load_dotenv(find_dotenv())
 
-try:
-    print('try block')
 
-    TEST_KEY = os.getenv('TEST')
+TEST_KEY = os.getenv('TEST')
 
+if type(TEST_KEY) != None:
+    print(".env local TEST_KEY")
     print(TEST_KEY)
 
-except:
-    print('except block')
-
+elif type(TEST_KEY) == None:
+    print("github secrets value")
     TEST_KEY = os.environ["test_var"]
-
     print(TEST_KEY)
