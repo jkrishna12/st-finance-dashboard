@@ -50,17 +50,32 @@ def test_github_secrets():
 
         print(TEST_KEY)
 
-load_dotenv(find_dotenv())
+def get_secret(key):
+    """
+    This function dynamically retrieves a secret value based on the environment.
+    """
+    load_dotenv()
+
+    env = os.getenv('ENVIRONMENT')
+    print(env)
+
+    if env == 'local':  # Check for local environment variable
+    # Load from .env file (assuming it's present locally)
 
 
-TEST_KEY = os.getenv('TEST')
-print(type(TEST_KEY))
+        local_key = os.getenv(key)
 
-if type(TEST_KEY) != None:
-    print(".env local TEST_KEY")
-    print(TEST_KEY)
+        print(f"local key {local_key}")
 
-elif type(TEST_KEY) == None:
-    print("github secrets value")
-    TEST_KEY = os.environ["test_var"]
-    print(TEST_KEY)
+        return local_key
+  
+    elif env == 'deployment':
+    # Access from GitHub secrets during deployment (assuming environment variable is set)
+
+        deployment_key = os.getenv(key)
+
+        print(f"deployment key {deployment_key}")
+
+        return deployment_key
+
+T212_API_KEY = get_secret('T212_API_KEY')

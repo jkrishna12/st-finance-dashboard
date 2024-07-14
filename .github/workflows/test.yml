@@ -5,7 +5,8 @@ on:
         branches: ["feature-env-folder"]
 
 env:
-    test_var: ${{ secrets.TEST }}
+    TEST: ${{ secrets.TEST }}
+    ENVIRONMENT: deployment
 
 jobs:
     build:
