@@ -4,6 +4,9 @@ on:
     push:
         branches: ["feature-env-folder"]
 
+env:
+    test_var: ${{ secrets.TEST }}
+
 jobs:
     build:
         runs-on: ubuntu-latest

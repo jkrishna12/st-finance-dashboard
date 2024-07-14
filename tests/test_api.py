@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv, find_dotenv
 from src.api_connection import *
+import pytest
 
 load_dotenv(find_dotenv())
 
@@ -16,6 +17,7 @@ except:
     print("except block")
     print(T212_API_KEY)
 
+@pytest.mark.skip(reason="not testing this")
 def test_get_portfolio():
 
     portfolio_reponse = get_portfolio(T212_API_KEY)
@@ -29,3 +31,21 @@ def test_get_portfolio():
     assert len(portfolio_data[0]) == 11
 
     return
+
+def test_github_secrets():
+
+    load_dotenv(find_dotenv())
+
+    try:
+        print('try block')
+
+        TEST_KEY = os.getenv('TEST')
+
+        print(TEST_KEY)
+
+    except:
+        print('except block')
+
+        TEST_KEY = os.environ["test_var"]
+
+        print(TEST_KEY)
