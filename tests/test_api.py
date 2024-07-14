@@ -76,6 +76,9 @@ def get_secret(key):
 
         print(f"deployment key {deployment_key}")
 
+        for i in deployment_key:
+            print(i)
+
         return deployment_key
 
 T212_API_KEY = get_secret('TEST')
