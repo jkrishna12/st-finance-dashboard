@@ -1,2 +1,2 @@
 pytest==7.4.0
-dotenv==0.21.0
+python-dotenv==0.21.0
