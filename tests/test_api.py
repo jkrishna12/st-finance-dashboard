@@ -54,6 +54,7 @@ load_dotenv(find_dotenv())
 
 
 TEST_KEY = os.getenv('TEST')
+print(type(TEST_KEY))
 
 if type(TEST_KEY) != None:
     print(".env local TEST_KEY")
