@@ -1,5 +1,5 @@
 import streamlit as st
-import src.return_dataframes as rd
+import return_dataframes as rd
 from plots import dashboard_plot as dplt
 from plots import position_plot as pplt
 from plots import dividend_plot as div_plt
