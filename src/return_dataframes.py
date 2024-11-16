@@ -68,7 +68,7 @@ def currency_converter(df):
     """
     
     # create a currency converter object
-    c = CurrencyConverter()
+    # c = CurrencyConverter()
     
     # loop through rows of dataframe   
     for i, row in df.iterrows():
