@@ -195,7 +195,52 @@ def get_balance(api_key):
     
     return data
             
+def get_order(api_key):
+    """
+    Function takes in the api key and returns a dictionary of orders
+    """
+
+    transaction_url = 'https://live.trading212.com/api/v0/equity/history/orders'
     
+    headers = {"Authorization": f"{api_key}"}
+    
+    transactions = {'items': [], 'nextPagePath': "", "limit": "50"}
+
+    while True:
+        # if else statements sets the query dictionary depending on the position of the cursor
+        if len(transactions["items"]) == 0:
+            query = {"cursor": "", "ticker": "", "limit": "50"}
+        else: 
+            query = {"cursor": f"{transactions['nextPagePath']}", "limit": "50", "ticker": ""}
+            
+        # try except block allows requesting of data otherwise will raise error
+        try:
+            response = requests.get(transaction_url, headers=headers, params=query)
+            data = response.json()
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
+            
+        # if too many requests are made loop is put to sleep for 61 seconds before requesting again
+        if 'errorMessage' in response:
+            errorMessage = response['errorMessage']
+            print(errorMessage)
+            time.sleep(61)
+            response = requests.get(transaction_url, headers=headers, params=query)
+            data = response.json()
+        
+        # extends the transactions items list with the new data 
+        transactions['items'].extend(data['items'])
+        
+        # if statement checks whether there is more data to extract 
+        # if there is updates the transactions['nextPagePath'] with the new page string
+        if data['nextPagePath'] is not None:
+            cursor_string = re.findall("cursor=(\d+)&", data['nextPagePath'])[0]
+            transactions['nextPagePath'] = cursor_string
+        # if there isn't a new cursor break the loop
+        else:
+            break
+    
+    return transactions['items']  
     
     
     

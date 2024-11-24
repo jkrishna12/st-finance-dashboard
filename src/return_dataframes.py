@@ -3,6 +3,7 @@ import api_connection as api
 from currency_converter import CurrencyConverter
 import time
 import re
+import requests
 
 
 def get_portfolio_df(api_key):
@@ -34,52 +35,99 @@ def get_instrument_df(api_key):
     
     return instrument_df
 
-def get_instrument_portfolio_merge_df(api_key):
+def get_orders_df(api_key):
+    """
+    Function takes in an api key and returns a Pandas Dataframe of the
+    orders data
+    """  
+    # extract json order data using api key   
+    data_orders = api.get_order(api_key)
+    
+    # create a dataframe using the json data    
+    orders_df = pd.json_normalize(data_orders)[['ticker', 'orderedQuantity', 'dateModified','fillPrice']]
+
+    orders_df['dateModified'] = pd.to_datetime(orders_df['dateModified'], utc = True)
+
+    orders_df['dateModified'] = orders_df['dateModified'].dt.date
+
+    orders_df_clean = orders_df[orders_df['orderedQuantity'] > 0].reset_index(drop = True)
+    
+    return orders_df_clean
+
+def get_instrument_portfolio_orders_merge_df(api_key):
     """
     Function takes in the api key and returns a merged Pandas dataframe
-    selecting the relevant columns of the instrument and portfolio dataframe
+    selecting the relevant columns of the instrument, portfolio and orders dataframe
     """
     # find the portfolio dataframe using get_portfolio_df function
     portfolio_df = get_portfolio_df(api_key)
     
     col_name = portfolio_df.columns[0]
-    time.sleep(10)
+    time.sleep(0.2)
     
     # find the instrument dataframe using the get_instrument_df function
     instrument_df = get_instrument_df(api_key)
-    time.sleep(10)
+    time.sleep(0.2)
+
+    # find the orders dataframe using the get_orders_df function
+    orders_df = get_orders_df(api_key)
     
-    instrument_col_name = instrument_df.columns[0]
+    # instrument_col_name = instrument_df.columns[0]
     
-    rename_dict = {instrument_col_name:col_name}
+    # rename_dict = {instrument_col_name:col_name}
     
-    instrument_df_rename = instrument_df.rename(columns = rename_dict)
-       
+    # instrument_df_rename = instrument_df.rename(columns = rename_dict)
+
+    orders_merge_df = orders_df.merge(instrument_df, on = 'ticker', how = 'left')
+
+    # converts GBX orders to GBP
+    orders_merge_df.loc[orders_merge_df['currencyCode'] == 'GBX', ['fillPrice']] = orders_merge_df.loc[orders_merge_df['currencyCode'] == 'GBX', ['fillPrice']] * 0.01
+    
+    # renames the GBX currency codes to GBP 
+    orders_merge_df.loc[orders_merge_df['currencyCode'] == 'GBX','currencyCode'] = 'GBP'
+
+    # converts currencies to GBP
+    orders_merge_df['fillPrice_GBP'] = orders_merge_df.apply(lambda x: currency_converter(x['fillPrice'], x['currencyCode'], 'GBP', x['dateModified']), axis = 1)
+
+    # define weighted mean function
+    def weighted_mean(x):
+        return (x['fillPrice_GBP'] * x['orderedQuantity']).sum() / x['orderedQuantity'].sum()
+    
+    # group by unique combo of ticker and currency code and then apply the weighted mean function
+    orders_agg = orders_merge_df.groupby(['ticker', 'type', 'currencyCode', 'name', 'shortName']).apply(weighted_mean, include_groups=False)
+
+    # convert to pandas dataframe
+    orders_agg_df = pd.DataFrame(orders_agg).reset_index()
+
+    # rename column
+    orders_agg_df.rename(columns = {0:'averagePrice_GBP'}, inplace = True)  
+
     # merges the portfolio dataframe and the instrument dataframe on the ticker column
-    portfolio_df_merge = portfolio_df.merge(instrument_df_rename, on = 'ticker')    
+    portfolio_df_merge = portfolio_df.merge(orders_agg_df, on = 'ticker')    
        
     return portfolio_df_merge
 
-def currency_converter(df):
+def currency_converter(amount, from_currency, to_currency, date = 'latest'):
     """
-    Function takes in a dataframe and returns the same dataframe with an 
-    additional 2 columns: the average price in GBP and the
-    currentPrice in GBP
+    Parameters:
     """
+
+    if from_currency != 'GBP':
     
-    # create a currency converter object
-    # c = CurrencyConverter()
+        response = requests.get(
+        f"https://api.frankfurter.app/{date}?amount={amount}&from={from_currency}&to={to_currency}")
+
+        if response.ok:
     
-    # loop through rows of dataframe   
-    for i, row in df.iterrows():
-        
-        # calculate the average price in GBP of the stock on the day it was bought
-        df.loc[i, 'averagePrice_GBP'] = c.convert(row['averagePrice'], row['currencyCode'], 'GBP', row['date_bought'])
-        
-        # calculates the current price in GBP of the stock on the current day
-        df.loc[i, 'currentPrice_GBP'] = c.convert(row['currentPrice'], row['currencyCode'], 'GBP')
+            return response.json()['rates'][to_currency]
     
-    return df
+        else:
+    
+            return response.json()
+
+    else:
+
+        return amount
 
 def get_clean_portfolio_df(api_key):
     """
@@ -88,7 +136,7 @@ def get_clean_portfolio_df(api_key):
     """
     
     # merged dataframe of the instrument and portfolio dataframes
-    portfolio_df = get_instrument_portfolio_merge_df(api_key)
+    portfolio_df = get_instrument_portfolio_orders_merge_df(api_key)
     
     # dictionary of the columns to rename
     rename_dict = {'ppl':'abs_value_change', 'fxPpl':'fx_value_change',
@@ -104,11 +152,11 @@ def get_clean_portfolio_df(api_key):
     # converts these values from pennies to pounds
     portfolio_df.loc[portfolio_df['currencyCode'] == 'GBX', ['averagePrice', 'currentPrice']] = portfolio_df.loc[portfolio_df['currencyCode'] == 'GBX', ['averagePrice', 'currentPrice']] * 0.01
     
-    # renames the GBX column to GBP 
+    # renames the GBX currency codes to GBP 
     portfolio_df.loc[portfolio_df['currencyCode'] == 'GBX','currencyCode'] = 'GBP'
     
-    # convert the averagePrice and currentPrice into GBP
-    portfolio_df = currency_converter(portfolio_df)
+    # convert the currentPrice into GBP
+    portfolio_df['currentPrice_GBP'] = portfolio_df.apply(lambda x: currency_converter(x['currentPrice'], x['currencyCode'], 'GBP'), axis = 1)
     
     # find the current value of all open positions
     portfolio_df['currentPos'] = portfolio_df['quantity'] * portfolio_df['currentPrice_GBP']
@@ -171,7 +219,10 @@ def get_balance_df(api_key):
 
     
     
-    
+if __name__ == '__main__':
+    portfolio_df = get_clean_portfolio_df('2477434ZcfilIMKZTAUNwdOzjiiQjgEfIdsk')
+
+    print(portfolio_df)
     
     
     
