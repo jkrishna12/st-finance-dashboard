@@ -219,10 +219,7 @@ def get_balance_df(api_key):
 
     
     
-if __name__ == '__main__':
-    portfolio_df = get_clean_portfolio_df('2477434ZcfilIMKZTAUNwdOzjiiQjgEfIdsk')
 
-    print(portfolio_df)
     
     
     
